@@ -1,0 +1,16 @@
+logging:
+  file: logs/platform-ikinloop-unipush.log
+  level:
+    root: INFO
+    com:
+      ikinloop: DEBUG
+
+unipush:
+  app-id: 5qJ7a1uI3a6NkmHjFty6l4
+  app-key: eNJ8so8kq77bHwKmJLLv09
+  master-secret: QQ9TtJLUyF8rMW9tZAkmPA
+  url: http://sdk.open.api.igexin.com/apiex.htm
+
+
+
+
