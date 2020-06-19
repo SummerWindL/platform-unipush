@@ -1,5 +1,5 @@
 logging:
-  file: logs/platform-unipush.log
+  file: logs/platform-ikinloop-unipush.log
   level:
     root: INFO
     com:
