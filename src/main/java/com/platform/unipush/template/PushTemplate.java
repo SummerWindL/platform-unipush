@@ -1,4 +1,4 @@
-package com.platform.unipush.template;
+package com.ikinloop.platform.ikinloop.unipush.template;
 
 import com.gexin.rp.sdk.base.notify.Notify;
 import com.gexin.rp.sdk.base.payload.APNPayload;
@@ -160,7 +160,7 @@ public class PushTemplate {
         Notify notify = new Notify();
         notify.setTitle(title);
         notify.setContent(notifycontent);
-        notify.setIntent("intent:#Intent;package=com.ikinloop.healthapp.banshan;launchFlags=0x14000000;component=com.ikinloop.healthapp.banshan/com.getui.demo.MainActivity;S.UP-OL-SU=true;S.title=测试标题;S.content=测试内容;S.payload=test;end");
+        notify.setIntent("intent:#Intent;package=com.ikinloop.healthapp.banshan;launchFlags=0x14000000;component=com.ikinloop.healthapp.banshan/io.dcloud.PandoraEntry;S.UP-OL-SU=true;S.title=测试标题;S.content=测试内容;S.payload=test;end");
         notify.setType(GtReq.NotifyInfo.Type._intent);
 //        notify.setUrl("https://dev.getui.com/");
 //        notify.setType(Type._url);
