@@ -6,6 +6,7 @@ import com.gexin.rp.sdk.base.IQueryResult;
 import com.gexin.rp.sdk.base.impl.AppMessage;
 import com.gexin.rp.sdk.base.impl.SingleMessage;
 import com.gexin.rp.sdk.base.impl.Target;
+import com.gexin.rp.sdk.http.GtPush;
 import com.gexin.rp.sdk.http.IGtPush;
 import com.gexin.rp.sdk.template.LinkTemplate;
 import com.gexin.rp.sdk.template.NotificationTemplate;
@@ -144,6 +145,8 @@ public class UniPushService implements IPushService{
 
     /**
      * 验证unipush配置是否生效
+     * 只校验appKey masterKey
+     * 不使用IGtPush 因为里面的实现是采用Map形式 存放之前校验过成功的参数 再次校验不在获取masterSecret
      *
      * @param appId
      * @param appKey
@@ -152,7 +155,8 @@ public class UniPushService implements IPushService{
      */
     @Override
     public boolean validateConnectIgetuiService(String appId, String appKey, String masterSecret) {
-        IGtPush push = new IGtPush(appKey,masterSecret);
+        String key = genKey(null,appKey,null);
+        GtPush push = new GtPush(null,appKey,masterSecret,null,key);
         try {
             if(push.connect()){
                 return true;
@@ -167,6 +171,10 @@ public class UniPushService implements IPushService{
             }
         }
         return false;
+    }
+
+    private String genKey(String host, String appKey, Boolean useSSL) {
+        return host + "|" + appKey + "|" + (useSSL == null ? false : useSSL);
     }
 
 

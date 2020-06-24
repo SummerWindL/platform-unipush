@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 /**
  * @program: middle-server
- * @description:
+ * @description: 通知消息格式 （APP通知栏通知消息）
  * @author: fuyl
  * @create: 2020-06-17 20:50
  **/

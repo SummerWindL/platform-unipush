@@ -1,5 +1,6 @@
-package com.ikinloop.platform.ikinloop.unipush.template;
+package com.platform.unipush.template;
 
+import com.alibaba.fastjson.JSONObject;
 import com.gexin.rp.sdk.base.notify.Notify;
 import com.gexin.rp.sdk.base.payload.APNPayload;
 import com.gexin.rp.sdk.base.payload.MultiMedia;
@@ -8,6 +9,7 @@ import com.gexin.rp.sdk.template.LinkTemplate;
 import com.gexin.rp.sdk.template.NotificationTemplate;
 import com.gexin.rp.sdk.template.TransmissionTemplate;
 import com.gexin.rp.sdk.template.style.AbstractNotifyStyle;
+import com.platform.unipush.bean.MqCmd;
 
 /**
  * @program: middle-server
@@ -40,7 +42,7 @@ public class PushTemplate {
 
 //        template.setDuration("2019-07-09 11:40:00", "2019-07-09 12:24:00");  // 设置定时展示时间，安卓机型可用
 //        template.setNotifyid(123); // 在消息推送的时候设置notifyid。如果需要覆盖此条消息，则下次使用相同的notifyid发一条新的消息。客户端sdk会根据notifyid进行覆盖。
-        template.setAPNInfo(getAPNPayload(transmissionContent)); //ios消息推送
+        template.setAPNInfo(getAPNPayload(transmissionContent,false)); //ios消息推送
         return template;
     }
 
@@ -83,13 +85,19 @@ public class PushTemplate {
         //透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
         template.setTransmissionType(transmissionType);
         template.setTransmissionContent(transmissionContent); //透传内容
-        template.setAPNInfo(getAPNPayload(transmissionContent)); //ios消息推送
+        template.setAPNInfo(getAPNPayload(transmissionContent,false)); //ios消息推送
 //        template.setAPNInfo(getVoIPPayload());
 //        template.setSmsInfo(PushSmsInfo.getSmsInfo()); //短信补量推送
         return template;
     }
 
-    private static APNPayload getAPNPayload(String msg) {
+    /**
+     * IOS消息体结构 payload
+     * @param msg 消息内容
+     * @param isOffline 是否离线
+     * @return
+     */
+    private static APNPayload getAPNPayload(String msg,boolean isOffline) {
         APNPayload payload = new APNPayload();
         //在已有数字基础上加1显示，设置为-1时，在已有数字上减1显示，设置为数字时，显示指定数字
         payload.setAutoBadge("+1");
@@ -100,7 +108,18 @@ public class PushTemplate {
         payload.addCustomMsg("由客户自定义消息key", "由客户自定义消息value");
 
         //简单模式APNPayload.SimpleMsg
-         payload.setAlertMsg(new APNPayload.SimpleAlertMsg(msg));
+        /**
+         *  IOS 需要在转换一遍
+         *   content :cmdMsg,cmdNo,cmdType 组成的String 字符串 将string转换为MqCmd
+         */
+        MqCmd mqCmd = JSONObject.parseObject(msg, MqCmd.class);
+        JSONObject json = (JSONObject)JSONObject.parse(mqCmd.getCmdMsg());
+        if(isOffline){ //离线 直接返回msgdigest
+            payload.setAlertMsg(new APNPayload.SimpleAlertMsg(json.get("msgdigest").toString()));
+        }else{ //在线 直接推msg回去
+            payload.setAlertMsg(new APNPayload.SimpleAlertMsg(msg));
+        }
+
 //         payload.setAlertMsg(getDictionaryAlertMsg("","",""));  //字典模式使用APNPayload.DictionaryAlertMsg
 
         //设置语音播报类型，int类型，0.不可用 1.播放body 2.播放自定义文本
@@ -156,16 +175,25 @@ public class PushTemplate {
         template.setAppId(appId);
         template.setAppkey(appKey);
         template.setTransmissionContent(content);
+        /**
+         *   content :cmdMsg,cmdNo,cmdType 组成的String 字符串 将string转换为MqCmd
+         */
+        MqCmd mqCmd = JSONObject.parseObject(content, MqCmd.class);
+        JSONObject json = (JSONObject)JSONObject.parse(mqCmd.getCmdMsg());
+        //组装 安卓的 payload数据
+        JSONObject payloadJson = new JSONObject();
+        payloadJson.put("appointserialid",json.get("appointserialid").toString());
         template.setTransmissionType(2);
         Notify notify = new Notify();
+        notify.setIntent("intent:#Intent;package=com.ikinloop.healthapp.banshan;launchFlags=0x14000000;component=com.ikinloop.healthapp.banshan/io.dcloud.PandoraEntry;S.UP-OL-SU=true;S.title="+title+";S.content="+notifycontent+";S.payload="+payloadJson.toJSONString()+";end");
         notify.setTitle(title);
         notify.setContent(notifycontent);
-        notify.setIntent("intent:#Intent;package=com.ikinloop.healthapp.banshan;launchFlags=0x14000000;component=com.ikinloop.healthapp.banshan/io.dcloud.PandoraEntry;S.UP-OL-SU=true;S.title=测试标题;S.content=测试内容;S.payload=test;end");
+        notify.setPayload(payloadJson.toJSONString());
         notify.setType(GtReq.NotifyInfo.Type._intent);
 //        notify.setUrl("https://dev.getui.com/");
 //        notify.setType(Type._url);
         template.set3rdNotifyInfo(notify);//设置第三方通知
-        template.setAPNInfo(getAPNPayload(content)); //ios消息推送
+        template.setAPNInfo(getAPNPayload(content,true)); //ios消息推送
         return template;
     }
 }
