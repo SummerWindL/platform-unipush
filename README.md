@@ -10,6 +10,7 @@
     <version>0.1</version>
 </dependency>
 ```
+项目可自行下载编写测试用例进行测试：如果遇到jar文件安装不了的情况，请参考[unipush本地安装maven开发jar](https://github.com/SummerWindL/knowledge_base/blob/master/%E5%BC%80%E5%8F%91Unipush%E9%9C%80%E8%A6%81%E5%AE%89%E8%A3%85%E7%9A%84Jar%E5%8C%85.md)
 
 ### 接口
 ```
